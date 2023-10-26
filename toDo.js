@@ -1,6 +1,4 @@
 const toDoForm = document.querySelector(".todo-form");
-const toDoContent = document.querySelector(".todo-content");
-const toDoDueDate = document.querySelector(".todo-duedate");
 const toDoList = document.querySelector(".todo-list");
 const toggleToDoForm = document.querySelector(".toggle-form");
 
@@ -8,58 +6,65 @@ const TODO_KEY = "toDos";
 
 let toDos = [];
 
-function handleToggleFrom() {
-  toDoForm.hidden = !toDoForm.hidden;
-}
-
+//local storage에 ToDos 저장
 function registerToDo() {
   localStorage.setItem(TODO_KEY, JSON.stringify(toDos));
 }
 
-function editToDo(event) {
-  const curItem = event.target.parentElement.parentElement;
-  const content = curItem.querySelector(".content");
-  const dueDate = curItem.querySelector(".due-date");
-
-  //input으로 변경 content & due date
-  const editForm = document.createElement("form");
-  editForm.id = curItem.id;
-  editForm.className = "todo";
-  const checkBox = document.createElement("input");
-  checkBox.type = "checkbox";
-  const inputContent = document.createElement("input");
-  inputContent.className = "content";
-  inputContent.type = "content";
-  inputContent.value = content.innerText;
-  inputContent.required = "true";
-  const inputDueDate = document.createElement("input");
-  inputDueDate.className = "due-date";
-  inputDueDate.type = "date";
-  inputDueDate.value = dueDate.innerText;
-  inputDueDate.required = "true";
-  const saveBtn = document.createElement("button");
-  saveBtn.innerText = "save";
-  const deleteBtn = document.createElement("button");
-  deleteBtn.innerText = "delete";
-
-  editForm.appendChild(checkBox);
-  editForm.appendChild(inputDueDate);
-  editForm.appendChild(inputContent);
-  editForm.appendChild(saveBtn);
-  editForm.appendChild(deleteBtn);
-  toDoList.replaceChild(editForm, curItem);
-
-  //save changes
-  editForm.addEventListener("submit", handleEditSubmit);
-  deleteBtn.addEventListener("click", removeToDo);
+//Done Task 설정
+function doneTask(event) {
+  const form = event.target.parentElement;
+  form.classList.toggle("done");
+  toDos.map((todo) => {
+    if (todo.id == form.id) {
+      todo.done = !todo.done;
+    }
+  });
+  registerToDo();
 }
 
+//SaveBtn 과 EditBtn hidden 바꾸기
+function toggleBtn(target) {
+  const actions = target.querySelector(".actions");
+  const saveBtn = actions.querySelector(".save_button");
+  const editBtn = actions.querySelector(".edit_button");
+
+  saveBtn.hidden = !saveBtn.hidden;
+  editBtn.hidden = !editBtn.hidden;
+}
+
+//ToDo 세부사항 수정
+function editToDo(event) {
+  event.preventDefault();
+  const curItem = event.target.parentElement.parentElement.parentElement;
+  const dueDate = curItem.querySelector(".duedate");
+  dueDate.removeAttribute("disabled");
+  dueDate.type = "date";
+  const content = curItem.querySelector(".content");
+  content.removeAttribute("disabled");
+
+  toggleBtn(curItem);
+
+  curItem.addEventListener("submit", handleEditSubmit);
+}
+
+//ToDo 하나 삭제하기
+function removeToDo(event) {
+  const curItem = event.target.parentElement.parentElement.parentElement;
+  curItem.remove();
+  toDos = toDos.filter((toDo) => toDo.id !== parseInt(curItem.id));
+  registerToDo();
+}
+
+//수정사항 저장하기
 function handleEditSubmit(event) {
   event.preventDefault();
   const form = event.target;
+  const doneTask = form.querySelector(".done_task");
   const content = form.querySelector(".content");
-  const dueDate = form.querySelector(".due-date");
+  const dueDate = form.querySelector(".duedate");
   const editedTodo = {
+    done: doneTask.value,
     date: dueDate.value,
     content: content.value,
     id: form.id,
@@ -70,68 +75,96 @@ function handleEditSubmit(event) {
       : toDo
   );
   registerToDo();
-  printEditedTodo(form, editedTodo);
+  content.setAttribute("disabled", true);
+  dueDate.type = "text";
+  dueDate.setAttribute("disabled", true);
+  toggleBtn(form);
 }
 
-function printEditedTodo(form, editedToDo) {
-  const div = paintToDo(editedToDo);
-  toDoList.replaceChild(div, form);
-}
-
-function removeToDo(event) {
-  const div = event.target.parentElement.parentElement;
-  div.remove();
-  toDos = toDos.filter((toDo) => toDo.id !== parseInt(div.id));
-  registerToDo();
-}
-
+//새로운 ToDo 저장하기
 function handleToDoSubmit(event) {
-  event.preventDefault();
+  const form = event.target;
+  const content = form.querySelector(".content");
+  const dueDate = form.querySelector(".duedate");
   const newToDoObject = {
-    date: toDoDueDate.value,
-    content: toDoContent.value,
+    done: "false",
+    date: dueDate.value,
+    content: content.value,
     id: Date.now(),
   };
   toDos.push(newToDoObject);
-  toDoContent.value = "";
-  toDoDueDate.value = "";
+  content.value = "";
+  dueDate.value = "";
   registerToDo();
   toDoList.appendChild(paintToDo(newToDoObject));
 }
 
+//ToDo form 새로 생성하기
 function paintToDo(newToDo) {
-  const item = document.createElement("div");
-  item.id = newToDo.id;
-  item.className = "todo";
+  const form = document.createElement("form");
+  form.id = newToDo.id;
+  form.className = "todo";
+
   const checkBox = document.createElement("input");
+  checkBox.className = "done_task";
   checkBox.type = "checkbox";
-  const dueDate = document.createElement("span");
-  dueDate.className = "due-date";
-  dueDate.innerText = newToDo.date;
-  const content = document.createElement("span");
+
+  const dueDate = document.createElement("input");
+  dueDate.className = "duedate";
+  dueDate.type = "date";
+  dueDate.value = newToDo.date;
+  dueDate.setAttribute("disabled", true);
+
+  const content = document.createElement("input");
   content.className = "content";
-  content.innerText = newToDo.content;
+  dueDate.type = "text";
+  content.value = newToDo.content;
+  content.setAttribute("disabled", true);
+
+  const actions = document.createElement("div");
+  actions.className = "actions";
+
+  const saveBtn = document.createElement("button");
+  const saveSpan = document.createElement("span");
+  saveBtn.className = "save_button";
+  saveSpan.innerText = "save";
+  saveBtn.appendChild(saveSpan);
+  saveBtn.setAttribute("hidden", true);
+
   const editBtn = document.createElement("button");
   const editSpan = document.createElement("span");
+  editBtn.className = "edit_button";
   editSpan.innerText = "edit";
   editBtn.appendChild(editSpan);
+
   const deleteBtn = document.createElement("button");
   const deleteSpan = document.createElement("span");
   deleteSpan.innerText = "delete";
   deleteBtn.appendChild(deleteSpan);
+
+  checkBox.addEventListener("click", doneTask);
   editBtn.addEventListener("click", editToDo);
   deleteBtn.addEventListener("click", removeToDo);
-  item.appendChild(checkBox);
-  item.appendChild(dueDate);
-  item.appendChild(content);
-  item.appendChild(editBtn);
-  item.appendChild(deleteBtn);
-  return item;
+
+  actions.appendChild(saveBtn);
+  actions.appendChild(editBtn);
+  actions.appendChild(deleteBtn);
+
+  form.appendChild(checkBox);
+  form.appendChild(dueDate);
+  form.appendChild(content);
+  form.appendChild(actions);
+  return form;
 }
+
+//new Todo 입력 Form 숨기고 나타내기
+toggleToDoForm.addEventListener("click", () => {
+  toDoForm.classList.toggle("hide");
+});
 
 toDoForm.addEventListener("submit", handleToDoSubmit);
 
-toggleToDoForm.addEventListener("click", handleToggleFrom);
+//새로고침시 local storage에서 풀러와서 화면에 출력하기
 
 const savedToDos = localStorage.getItem(TODO_KEY);
 

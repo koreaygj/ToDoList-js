@@ -24,14 +24,10 @@ body {
   display: grid;
 }
 
-.todo-list {
-  width: 100%;
-  display: grid;
-}
-
-.todo {
+.todo-form {
   width: 80vw;
   height: 30px;
+  padding: 5px;
   display: flex;
   justify-content: space-around;
   font-size: 15px;
@@ -40,17 +36,68 @@ body {
   border-radius: 4px;
   margin: 4px;
   align-items: center;
+  transition: opacity 0.1s;
 }
 
-.todo .due-date {
+.todo-form.hide {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s linear 0.33s, opacity 0.33s linear;
+}
+
+.todo-form button {
+  margin-right: 10px;
+}
+
+.todo-list {
+  width: 100%;
+  display: grid;
+  transition: cubic-bezier() 0.9s;
+}
+
+.todo {
+  width: 80vw;
+  height: 30px;
+  padding: 5px;
+  display: flex;
+  justify-content: space-around;
+  font-size: 15px;
+  font-weight: 700;
+  background-color: rgb(186, 200, 215);
+  border-radius: 4px;
+  margin: 4px;
+  opacity: 1;
+  align-items: center;
+}
+
+.todo:hover {
+  transform: scale(1.02);
+  transition: 0.2s;
+}
+
+.todo.done {
+  opacity: 0.7;
+  transition: opacity 0.3s linear;
+  text-decoration: line-through;
+}
+
+.duedate {
   left: 10px;
   margin: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  background-color: rgb(186, 200, 215);
+  border: 0;
 }
 
-.todo .content {
+.content {
   left: 10px;
   margin: 10px;
   flex-grow: 1;
+  font-size: 20px;
+  font-weight: 700;
+  background-color: rgb(186, 200, 215);
+  border: 0;
 }
 
 .todo input[type="checkbox"] {
@@ -71,7 +118,7 @@ button {
   overflow: hidden;
   position: relative;
   color: lightslategrey;
-  font-weight: 600;
+  font-weight: 530;
   font-size: 15px;
   background-color: #fff;
   margin: 0 auto;
