@@ -8,6 +8,7 @@ let toDos = [];
 
 //local storage에 ToDos 저장
 function registerToDo() {
+  toDos.sort();
   localStorage.setItem(TODO_KEY, JSON.stringify(toDos));
 }
 
@@ -108,6 +109,13 @@ function paintToDo(newToDo) {
   const checkBox = document.createElement("input");
   checkBox.className = "done_task";
   checkBox.type = "checkbox";
+  console.log(newToDo.done);
+  console.log("check");
+  console.log(checkBox.checked);
+  if (newToDo.done) {
+    checkBox.checked = "true";
+    form.classList.toggle("done");
+  }
 
   const dueDate = document.createElement("input");
   dueDate.className = "duedate";
