@@ -88,7 +88,7 @@ function handleToDoSubmit(event) {
   const content = form.querySelector(".content");
   const dueDate = form.querySelector(".duedate");
   const newToDoObject = {
-    done: "false",
+    done: false,
     date: dueDate.value,
     content: content.value,
     id: Date.now(),
@@ -110,10 +110,8 @@ function paintToDo(newToDo) {
   checkBox.className = "done_task";
   checkBox.type = "checkbox";
   console.log(newToDo.done);
-  console.log("check");
-  console.log(checkBox.checked);
   if (newToDo.done) {
-    checkBox.checked = "true";
+    checkBox.checked = true;
     form.classList.toggle("done");
   }
 
