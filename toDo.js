@@ -8,8 +8,11 @@ let toDos = [];
 
 //local storage에 ToDos 저장
 function registerToDo() {
-  toDos.sort();
+  toDos.sort((a, b) => {
+    return a.done - b.done;
+  });
   localStorage.setItem(TODO_KEY, JSON.stringify(toDos));
+  location.reload();
 }
 
 //Done Task 설정
@@ -172,10 +175,16 @@ toDoForm.addEventListener("submit", handleToDoSubmit);
 
 //새로고침시 local storage에서 풀러와서 화면에 출력하기
 
-const savedToDos = localStorage.getItem(TODO_KEY);
+function printToDoList() {
+  const savedToDos = localStorage.getItem(TODO_KEY);
 
-if (savedToDos !== null) {
-  const parsedToDos = JSON.parse(savedToDos);
-  toDos = parsedToDos;
-  parsedToDos.forEach((prevToDo) => toDoList.appendChild(paintToDo(prevToDo)));
+  if (savedToDos !== null) {
+    const parsedToDos = JSON.parse(savedToDos);
+    toDos = parsedToDos;
+    parsedToDos.forEach((prevToDo) =>
+      toDoList.appendChild(paintToDo(prevToDo))
+    );
+  }
 }
+
+printToDoList();
